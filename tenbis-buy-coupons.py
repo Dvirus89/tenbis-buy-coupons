@@ -19,6 +19,7 @@ COUPONS_100 = "xxxxxxx"
 DEBUG = False
 
 def get_coupons_mixture(budget):
+    # credit to: https://stackoverflow.com/a/64409910
     min_coupon = budget
     if budget in COUPONS_TYPES:
         return 1, [budget]
@@ -32,7 +33,6 @@ def get_coupons_mixture(budget):
                     min_coupon = num_coupons
                     cl = t + [coupon]
     return min_coupon, cl
-
 
 def main_procedure():
     # If token exists, use the token to authenticate 10bis
@@ -58,7 +58,6 @@ def main_procedure():
             #buy_coupon(session,coupons_mixture[coupon])
     else:
         print(f"Sorry, your budget ({budget}) is lower than the smallest available coupon ({min(COUPONS_TYPES)}).")
-
 
 def input_number(message):
   while True:
