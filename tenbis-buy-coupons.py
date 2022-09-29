@@ -55,6 +55,7 @@ def main_procedure():
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
         for coupon in range(0, len(coupons_mixture),1):
             print(f"Buying coupon #{coupon+1}: {coupons_mixture[coupon]}")
+            #buy_coupon(session,coupons_mixture[coupon])
     else:
         print(f"Sorry, your budget ({budget}) is lower than the smallest available coupon ({min(COUPONS_TYPES)}).")
 
@@ -96,8 +97,8 @@ def get_available_budget(session):
     budget = resp_json['Data']['moneycards'][0]['balance']['monthly']
     return budget
 
-def get_barcode_order_info(session, order_id, res_id):
-    endpoint = TENBIS_FQDN + f"/NextApi/GetOrderBarcode?culture=he-IL&uiCulture=he&orderId={order_id}&resId={res_id}"
+def buy_coupon(session, coupon):
+    endpoint = TENBIS_FQDN + f"/NextApi/GetOrderBarcode?culture=he-IL&uiCulture=he&orderId={coupon}&resId={coupon}"
     headers = {"content-type": "application/json"}
     headers.update({'user-token': session.user_token})
     response = session.get(endpoint, headers=headers, verify=False)
