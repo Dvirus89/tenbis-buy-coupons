@@ -12,6 +12,10 @@ TOKEN_PATH = f"{CWD}/usertoken.pickle"
 OUTPUT_PATH = f"{CWD}/report.html"
 TENBIS_FQDN = "https://www.10bis.co.il"
 COUPONS_TYPES = [30, 40, 50, 100]
+COUPONS_30 = "xxxxxxx"
+COUPONS_40 = "xxxxxxx"
+COUPONS_50 = "xxxxxxx"
+COUPONS_100 = "xxxxxxx"
 DEBUG = False
 
 def get_coupons_mixture(budget):
@@ -49,6 +53,8 @@ def main_procedure():
         m, coupons_mixture = get_coupons_mixture(budget)
         num_of_coupons = len(coupons_mixture)
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
+        for coupon in range(0, len(coupons_mixture),1):
+            print(f"Buying coupon #{coupon+1}: {coupons_mixture[coupon]}")
     else:
         print(f"Sorry, your budget ({budget}) is lower than the smallest available coupon ({min(COUPONS_TYPES)}).")
 
