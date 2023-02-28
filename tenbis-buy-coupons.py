@@ -18,7 +18,7 @@ COUPONS_IDS = {
     50:2046841,
     100:2046845
 }
-DEBUG = False
+DEBUG = True
 
 def get_coupons_mixture(budget):
     # credit to: https://stackoverflow.com/a/64409910
@@ -50,10 +50,11 @@ def main_procedure():
     session = auth_tenbis()
     # get budget
     budget = get_available_budget(session)
+    budget = 50 # remove later
     print(f"The available budget is: {budget}")
     if budget >= min(COUPONS_TYPES):
         print(f"Analyze your budget for optimal coupons mixture...")
-        #budget = 100 # remove later
+        
         m, coupons_mixture = get_coupons_mixture(budget)
         num_of_coupons = len(coupons_mixture)
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
@@ -93,10 +94,9 @@ def get_available_budget(session):
     payload = {"culture": "he-IL", "uiCulture": "he", "dateBias": 0}
     headers = {"content-type": "application/json", "user-token": session.user_token}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
-
     if(DEBUG):
         print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
-
+        input("wait log UserTransactionsReport")
     resp_json = json.loads(response.text)
     budget = resp_json['Data']['moneycards'][0]['balance']['monthly']
     return budget
@@ -112,8 +112,9 @@ def buy_coupon(session, coupon):
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
     if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
         input("wait log SetAddressInOrder")
 
     # SetDeliveryMethodInOrder
@@ -125,8 +126,9 @@ def buy_coupon(session, coupon):
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
     if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
         input("wait log SetDeliveryMethodInOrder")
 
     # SetRestaurantInOrder
@@ -134,41 +136,15 @@ def buy_coupon(session, coupon):
     endpoint = TENBIS_FQDN + f"/NextApi/SetRestaurantInOrder"
     headers = {"content-type": "application/json"}
     headers.update({'user-token': session.user_token})
-    payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","isMobileDevice":False,"restaurantId":"26698"}
+    payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","isMobileDevice":True,"restaurantId":"26698"}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
     if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
         input("wait log SetRestaurantInOrder")
     
-    # GetPayments
-    #
-    endpoint = TENBIS_FQDN + f"/NextApi/GetPayments?shoppingCartGuid={session.cart_guid}&culture=he-IL&uiCulture=he"
-    headers = {"content-type": "application/json"}
-    headers.update({'user-token': session.user_token})
-    payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","isMobileDevice":False,"restaurantId":"26698"}
-    response = session.get(endpoint, headers=headers, verify=False)
-    resp_json = json.loads(response.text)
-    main_user=current = [x for x in resp_json['Data'] if x['userId'] == session.user_id]
-    if(DEBUG):
-        print(resp_json)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
-        input("wait log GetPayments")
-
-    # SetPaymentsInOrder
-    #
-    endpoint = TENBIS_FQDN + f"/NextApi/SetPaymentsInOrder"
-    headers = {"content-type": "application/json"}
-    headers.update({'user-token': session.user_token})
-    payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","payments":[{"paymentMethod":"Moneycard","creditCardType":"none","cardId":main_user[0]['cardId'],"cardToken":"","userId":session.user_id,"userName":main_user[0]['userName'],"cardLastDigits":main_user[0]['cardLastDigits'],"sum":coupon,"assigned":True,"remarks":None,"expirationDate":None,"isDisabled":False,"editMode":False}]}
-    response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
-    resp_json = json.loads(response.text)
-    if(DEBUG):
-        print(resp_json)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
-        input("wait log SetPaymentsInOrder")
-
     # SetDishListInShoppingCart
     #
     endpoint = TENBIS_FQDN + f"/NextApi/SetDishListInShoppingCart"
@@ -184,9 +160,39 @@ def buy_coupon(session, coupon):
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
     if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
         input("wait log SetDishListInShoppingCart")
+
+# GetPayments
+    #
+    endpoint = TENBIS_FQDN + f"/NextApi/GetPayments?shoppingCartGuid={session.cart_guid}&culture=he-IL&uiCulture=he"
+    headers = {"content-type": "application/json"}
+    headers.update({'user-token': session.user_token})
+    response = session.get(endpoint, headers=headers, verify=False)
+    resp_json = json.loads(response.text)
+    main_user=current = [x for x in resp_json['Data'] if x['userId'] == session.user_id]
+    # TODO - make sure to use only 10BIS cards
+    if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
+        print(resp_json)
+        input("wait log GetPayments")
+
+    # SetPaymentsInOrder
+    #
+    endpoint = TENBIS_FQDN + f"/NextApi/SetPaymentsInOrder"
+    headers = {"content-type": "application/json"}
+    headers.update({'user-token': session.user_token})
+    payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","payments":[{"paymentMethod":"Moneycard","creditCardType":"none","cardId":main_user[0]['cardId'],"cardToken":"","userId":session.user_id,"userName":main_user[0]['userName'],"cardLastDigits":main_user[0]['cardLastDigits'],"sum":coupon,"assigned":True,"remarks":None,"expirationDate":None,"isDisabled":False,"editMode":False}]}
+    response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
+    resp_json = json.loads(response.text)
+    if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
+        print(resp_json)
+        input("wait log SetPaymentsInOrder")
 
     # SubmitOrder
     #
@@ -197,12 +203,10 @@ def buy_coupon(session, coupon):
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
     if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
-    input("wait log SubmitOrder")
-
-
-
+        input("wait log SubmitOrder")
 
 
 def get_shopping_card_guid(session):
