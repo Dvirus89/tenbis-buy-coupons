@@ -19,6 +19,7 @@ COUPONS_IDS = {
     100:2046845
 }
 DEBUG = False
+DRYRUN = False
 
 def get_coupons_mixture(budget):
     # credit to: https://stackoverflow.com/a/64409910
@@ -36,22 +37,45 @@ def get_coupons_mixture(budget):
                     cl = t + [coupon]
     return min_coupon, cl
 
+def input_budget_validation(budget):
+  while True:
+    try:
+       userInput = float(input(f"Enter the amount you wish to spend on Shufersal coupons: [{budget}] ") or str(budget))
+       if userInput > budget:
+              print(f"The amount you entered ({userInput}) is higher then the actual budget({budget})")
+              continue   
+    except ValueError:
+       print("Not valid amount! Try again. (examples: 50, 98.50, 200, 1000)")
+       continue
+    else:
+       return userInput 
+       break     
+
+def sleep_print(seconds):
+    for i in range(seconds,0,-1):
+        print(f"     countdown: {i}     ", end="\r", flush=True)
+        time.sleep(1)
+
 def main_procedure():
     session = auth_tenbis()
     # get budget
     budget = get_available_budget(session)
     print(f"The available budget is: {budget}")
+    budget = input_budget_validation(budget)
     if budget >= min(COUPONS_TYPES):
         print(f"Analyze your budget for optimal coupons mixture...")
-        
         m, coupons_mixture = get_coupons_mixture(budget)
         num_of_coupons = len(coupons_mixture)
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
-        for coupon in range(0, len(coupons_mixture),1):
-            print(f"Buying coupon #{coupon+1}: {coupons_mixture[coupon]}")
-            buy_coupon(session,coupons_mixture[coupon])
-            print("waiting two minutes before the next one...\r\n")
-            time.sleep(130)
+        if input("Press ENTER to continue or type 'no' to cancel: ") == "":
+            for coupon in range(0, len(coupons_mixture),1):
+                print(f"Buying coupon #{coupon+1}: {coupons_mixture[coupon]}")
+                buy_coupon(session,coupons_mixture[coupon])
+                print("waiting two minutes before the next one...\r\n")
+                if coupon < len(coupons_mixture):
+                    sleep_print(130)
+        else:
+            print("canceled.")
     else:
         print(f"Sorry, your budget ({budget}) is lower than the smallest available coupon ({min(COUPONS_TYPES)}).")
 
@@ -117,8 +141,6 @@ def buy_coupon(session, coupon):
                "culture":"he-IL",
                "uiCulture":"he",
                "dishList":[{"dishId":COUPONS_IDS[coupon],"shoppingCartDishId":1,"quantity":1,"assignedUserId":session.user_id,"choices":[],"dishNotes":None,"categoryId":278344}]}
-
-    print(json.dumps(payload))
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
     if(DEBUG):
@@ -156,6 +178,8 @@ def buy_coupon(session, coupon):
         print(resp_json)
         input("wait log SetPaymentsInOrder")
 
+    if DRYRUN:
+        return
     # SubmitOrder
     #
     endpoint = TENBIS_FQDN + f"/NextApi/SubmitOrder"
