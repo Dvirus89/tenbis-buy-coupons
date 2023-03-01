@@ -71,9 +71,10 @@ def main_procedure():
             for coupon in range(0, len(coupons_mixture),1):
                 print(f"Buying coupon #{coupon+1}: {coupons_mixture[coupon]}")
                 buy_coupon(session,coupons_mixture[coupon])
-                print("waiting two minutes before the next one...\r\n")
-                if coupon < len(coupons_mixture):
+                if (coupon+1) < len(coupons_mixture):
+                    print("waiting two minutes before the next one...\r\n")
                     sleep_print(130)
+            print("Mission complete :)")
         else:
             print("canceled.")
     else:
