@@ -1,7 +1,5 @@
 # tenbis-buy-coupons
 
-# ** PLEASE NOTE **  - 10Bis updates their barcodes usage state every week or two, so consider only records older than two weeks as valid)
-
 ## Usage:
 ```
 git clone https://github.com/Dvirus89/tenbis-buy-coupons
