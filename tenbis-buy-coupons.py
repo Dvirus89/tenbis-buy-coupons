@@ -3,7 +3,7 @@ import os
 import pickle
 import urllib3
 import json
-
+import time
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 CWD=os.getcwd()
@@ -18,7 +18,7 @@ COUPONS_IDS = {
     50:2046841,
     100:2046845
 }
-DEBUG = True
+DEBUG = False
 
 def get_coupons_mixture(budget):
     # credit to: https://stackoverflow.com/a/64409910
@@ -50,7 +50,6 @@ def main_procedure():
     session = auth_tenbis()
     # get budget
     budget = get_available_budget(session)
-    budget = 50 # remove later
     print(f"The available budget is: {budget}")
     if budget >= min(COUPONS_TYPES):
         print(f"Analyze your budget for optimal coupons mixture...")
@@ -62,6 +61,8 @@ def main_procedure():
             print(f"Buying coupon #{coupon+1}: {coupons_mixture[coupon]}")
             #get_shopping_card_guid(session)
             buy_coupon(session,coupons_mixture[coupon])
+            print("waiting two minutes before the next one...\r\n")
+            time.sleep(130)
     else:
         print(f"Sorry, your budget ({budget}) is lower than the smallest available coupon ({min(COUPONS_TYPES)}).")
 
@@ -105,6 +106,7 @@ def buy_coupon(session, coupon):
     # add to shopping cart
     # SetAddressInOrder
     #
+    #session.cart_guid = get_shopping_card_guid(session) #test generate uuid -  remove?
     endpoint = TENBIS_FQDN + f"/NextApi/SetAddressInOrder"
     headers = {"content-type": "application/json"}
     headers.update({'user-token': session.user_token})
@@ -150,7 +152,6 @@ def buy_coupon(session, coupon):
     endpoint = TENBIS_FQDN + f"/NextApi/SetDishListInShoppingCart"
     headers = {"content-type": "application/json"}
     headers.update({'user-token': session.user_token})
-    print(str(coupon) + " " + session.cart_guid + " " + str(session.user_id))
     payload = {"shoppingCartGuid": session.cart_guid,
                "culture":"he-IL",
                "uiCulture":"he",
@@ -172,13 +173,13 @@ def buy_coupon(session, coupon):
     headers.update({'user-token': session.user_token})
     response = session.get(endpoint, headers=headers, verify=False)
     resp_json = json.loads(response.text)
-    main_user=current = [x for x in resp_json['Data'] if x['userId'] == session.user_id]
     # TODO - make sure to use only 10BIS cards
     if(DEBUG):
         print("Request:\r\n" + endpoint + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
         input("wait log GetPayments")
+    main_user=current = [x for x in resp_json['Data'] if x['userId'] == session.user_id]
 
     # SetPaymentsInOrder
     #
@@ -207,19 +208,21 @@ def buy_coupon(session, coupon):
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
         input("wait log SubmitOrder")
+    session.cart_guid = resp_json['ShoppingCartGuid']
 
 
 def get_shopping_card_guid(session):
-    endpoint = TENBIS_FQDN + "/"
+    endpoint = TENBIS_FQDN + f"/NextApi/GetPayments?shoppingCartGuid=00000000-0000-0000-0000-000000000000&culture=he-IL&uiCulture=he"
     headers = {"content-type": "application/json"}
-    #headers.update({'user-token': session.user_token})
-    response = session.get(endpoint, verify=False)
-    #resp_json = json.loads(response.text)
+    headers.update({'user-token': session.user_token})
+    response = session.get(endpoint, headers=headers, verify=False)
+    resp_json = json.loads(response.text)
     if(DEBUG):
-        print(response.headers)
-        print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
-
-
+        print("Request:\r\n" + endpoint + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
+        print(resp_json['ShoppingCartGuid'])
+        input("wait log GetPayments to extract shopping cart guid")
+    return resp_json['ShoppingCartGuid']
 
 def auth_tenbis():
     # Phase one -> Email
