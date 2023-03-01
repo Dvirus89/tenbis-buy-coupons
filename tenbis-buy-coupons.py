@@ -6,10 +6,6 @@ import json
 import time
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-CWD=os.getcwd()
-SESSION_PATH = f"{CWD}/sessions.pickle"
-TOKEN_PATH = f"{CWD}/usertoken.pickle"
-OUTPUT_PATH = f"{CWD}/report.html"
 TENBIS_FQDN = "https://www.10bis.co.il"
 COUPONS_TYPES = [30, 40, 50, 100]
 COUPONS_IDS = {
