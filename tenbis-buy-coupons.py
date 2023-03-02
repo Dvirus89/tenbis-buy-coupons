@@ -1,6 +1,4 @@
 import requests
-import os 
-import pickle
 import urllib3
 import json
 import time
