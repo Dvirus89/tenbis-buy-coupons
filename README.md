@@ -1,5 +1,8 @@
 # tenbis-buy-coupons
 
+### This code will fetch your current balance in 10Bis and automatically purchase Shufersal coupons using the best optimized combination to utilize all the remaining credit.
+
+
 ## Usage:
 ```
 git clone https://github.com/Dvirus89/tenbis-buy-coupons
