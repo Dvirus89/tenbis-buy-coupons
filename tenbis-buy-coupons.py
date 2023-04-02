@@ -62,10 +62,10 @@ def main_procedure():
         num_of_coupons = len(coupons_mixture)
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
         if input("Press ENTER to continue or type 'no' to cancel: ") == "":
-            for coupon in range(0, len(coupons_mixture),1):
-                print(f"Buying coupon #{coupon+1}: {coupons_mixture[coupon]}")
-                buy_coupon(session,coupons_mixture[coupon])
-                if (coupon+1) < len(coupons_mixture):
+            for i in range(0, len(coupons_mixture),1):
+                print(f"Buying coupon #{i+1}: {coupons_mixture[i]}")
+                buy_coupon(session,coupons_mixture[i])
+                if ((i+1) < len(coupons_mixture) and (i > 0 and int(coupons_mixture[i]) == int(coupons_mixture[i-1]))):
                     print("waiting two minutes before the next one...\r\n")
                     sleep_print(130)
             print("Mission complete :)")
