@@ -13,7 +13,7 @@ COUPONS_IDS = {
     100:2046845
 }
 DEBUG = False
-DRYRUN = False
+DRYRUN = True
 
 def get_coupons_mixture(budget):
     # credit to: https://stackoverflow.com/a/64409910
@@ -50,8 +50,14 @@ def sleep_print(seconds):
         print(f"     countdown: {i}     ", end="\r", flush=True)
         time.sleep(1)
 
+def print_hebrew(heb_txt):
+    print(heb_txt[::-1])
+
 def main_procedure():
     session = auth_tenbis()
+    if(not session):
+        print("exit")
+        return
     # get budget
     budget = get_available_budget(session)
     print(f"The available budget is: {budget}")
@@ -200,14 +206,17 @@ def auth_tenbis():
 
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
+    error_msg = resp_json['Errors']
 
     if(DEBUG):
         print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
 
-    if (200 <= response.status_code <= 210):
-        print("login successful")
+    if (200 <= response.status_code <= 210 and (len(error_msg) == 0)):
+        print("User exist, next step is...")
     else:
         print("login failed")
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return False
 
     # Phase two -> OTP
     endpoint = TENBIS_FQDN + "/NextApi/GetUserV2"
@@ -222,6 +231,7 @@ def auth_tenbis():
 
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
+    error_msg = resp_json['Errors']
     user_token = resp_json['Data']['userToken']
     session.user_token = user_token
     session.cart_guid = resp_json['ShoppingCartGuid']
@@ -230,6 +240,13 @@ def auth_tenbis():
         print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
         print(session)
         input("wait log GetUserV2")
+
+    if (200 <= response.status_code <= 210 and (len(error_msg) == 0)):
+        print("login successful...")
+    else:
+        print("login failed")
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return False
 
     return session
 
