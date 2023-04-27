@@ -13,7 +13,7 @@ COUPONS_IDS = {
     100:2046845
 }
 DEBUG = False
-DRYRUN = True
+DRYRUN = False
 
 def get_coupons_mixture(budget):
     # credit to: https://stackoverflow.com/a/64409910
@@ -69,11 +69,11 @@ def main_procedure():
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
         if input("Press ENTER to continue or type 'no' to cancel: ") == "":
             for i in range(0, len(coupons_mixture),1):
-                print(f"Buying coupon #{i+1}: {coupons_mixture[i]}")
                 buy_coupon(session,coupons_mixture[i])
                 if ((i+1) < len(coupons_mixture) and (i > 0 and int(coupons_mixture[i]) == int(coupons_mixture[i-1]))):
-                    print("waiting two minutes before the next one...\r\n")
+                    print("waiting the required time before two identical orders...\r\n")
                     sleep_print(130)
+                print(f"Buying coupon #{i+1}: {coupons_mixture[i]}")
             print("Mission complete :)")
         else:
             print("canceled.")
