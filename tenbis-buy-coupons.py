@@ -69,11 +69,11 @@ def main_procedure():
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
         if input("Press ENTER to continue or type 'no' to cancel: ") == "":
             for i in range(0, len(coupons_mixture),1):
+                print(f"Buying coupon #{i+1}: {coupons_mixture[i]}")
                 buy_coupon(session,coupons_mixture[i])
                 if ((i+1) < len(coupons_mixture) and (i > 0 and int(coupons_mixture[i]) == int(coupons_mixture[i-1]))):
                     print("waiting the required time before two identical orders...\r\n")
                     sleep_print(130)
-                print(f"Buying coupon #{i+1}: {coupons_mixture[i]}")
             print("Mission complete :)")
         else:
             print("canceled.")
@@ -141,7 +141,7 @@ def buy_coupon(session, coupon):
     payload = {"shoppingCartGuid": session.cart_guid,
                "culture":"he-IL",
                "uiCulture":"he",
-               "dishList":[{"dishId":COUPONS_IDS[coupon],"shoppingCartDishId":1,"quantity":1,"assignedUserId":session.user_id,"choices":[],"dishNotes":None,"categoryId":278344}]}
+               "dishList":[{"dishId":COUPONS_IDS[int(coupon)],"shoppingCartDishId":1,"quantity":1,"assignedUserId":session.user_id,"choices":[],"dishNotes":None,"categoryId":278344}]}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
     if(DEBUG):
