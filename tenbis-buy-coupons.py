@@ -5,7 +5,7 @@ import time
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 TENBIS_FQDN = "https://www.10bis.co.il"
-COUPONS_TYPES = [30, 40, 50, 100]
+COUPONS_TYPES = [100, 50, 40, 30, 1] # "1" added as a dummy coin
 COUPONS_IDS = {
     30:2046839,
     40:2046840,
@@ -16,20 +16,29 @@ DEBUG = False
 DRYRUN = False
 
 def get_coupons_mixture(budget):
-    # credit to: https://stackoverflow.com/a/64409910
-    min_coupon = budget
-    if budget in COUPONS_TYPES:
-        return 1, [budget]
-    else:
-        cl = []
+    # Create a table to store the minimum number of coupons required to make up each sub-amount
+    max_value = 10 ** 5  # Set a maximum value that is greater than the maximum budget
+    table = [max_value] * (budget + 1)
+    table[0] = 0
+    # Calculate the minimum number of coupons required for each sub-amount
+    for i in range(1, budget + 1):
         for coupon in COUPONS_TYPES:
-            if coupon < budget:
-                mt, t = get_coupons_mixture(budget - coupon)
-                num_coupons = 1 + mt
-                if num_coupons < min_coupon:
-                    min_coupon = num_coupons
-                    cl = t + [coupon]
-    return min_coupon, cl
+            if coupon <= i:
+                subproblem = table[i - coupon]
+                if subproblem != max_value and subproblem + 1 < table[i]:
+                    table[i] = subproblem + 1
+    # Get the list of coupons required to make up the minimum number
+    coupons = []
+    i = budget
+    while i > 0 and i >= min(COUPONS_TYPES):
+        for coupon in COUPONS_TYPES:
+            if coupon <= i and table[i - coupon] == table[i] - 1:
+                if coupon !=1:
+                    coupons.append(coupon)
+                i -= coupon
+                break
+    # Return the minimum number of coupons and the list of coupons required
+    return int(len(coupons)), [int(coupon) for coupon in coupons]
 
 def input_budget_validation(budget):
   while True:
@@ -64,8 +73,7 @@ def main_procedure():
     budget = input_budget_validation(budget)
     if budget >= min(COUPONS_TYPES):
         print(f"Analyze your budget for optimal coupons mixture...")
-        m, coupons_mixture = get_coupons_mixture(budget)
-        num_of_coupons = len(coupons_mixture)
+        num_of_coupons, coupons_mixture = get_coupons_mixture(int(budget))
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
         if input("Press ENTER to continue or type 'no' to cancel: ") == "":
             for i in range(0, len(coupons_mixture),1):
