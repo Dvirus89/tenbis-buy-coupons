@@ -33,7 +33,7 @@ def get_coupons_mixture(budget):
     while i > 0 and i >= min(COUPONS_TYPES):
         for coupon in COUPONS_TYPES:
             if coupon <= i and table[i - coupon] == table[i] - 1:
-                if coupon !=1:
+                if coupon !=1: # Ignore dummy "coins"
                     coupons.append(coupon)
                 i -= coupon
                 break
