@@ -71,7 +71,7 @@ def main_procedure():
     budget = get_available_budget(session)
     print(f"The available budget is: {budget}")
     budget = input_budget_validation(budget)
-    if budget >= min(COUPONS_TYPES):
+    if budget >= 30:
         print(f"Analyze your budget for optimal coupons mixture...")
         num_of_coupons, coupons_mixture = get_coupons_mixture(int(budget))
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
