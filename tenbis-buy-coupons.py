@@ -186,16 +186,16 @@ def buy_coupon(session, coupon):
     response = session.get(endpoint, headers=headers, verify=False)
     resp_json = json.loads(response.text)
     # TODO - make sure to use only 10BIS cards
-    if(DEBUG):
-        print("Request:\r\n" + endpoint + "\r\n########")
-        print("Response: " + str(response.status_code) + "\r\n")
-        print(resp_json)
-        print("wait log GetPayments")
     error_msg = resp_json['Errors']
     success_code = resp_json['Success']
     if(not success_code):
         print_hebrew((error_msg[0]['ErrorDesc']))
         return
+    if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
+        print(resp_json)
+        print("wait log GetPayments")
     main_user=current = [x for x in resp_json['Data'] if x['userId'] == session.user_id]
 
     # SetPaymentsInOrder
@@ -206,16 +206,17 @@ def buy_coupon(session, coupon):
     payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","payments":[{"paymentMethod":"Moneycard","creditCardType":"none","cardId":main_user[0]['cardId'],"cardToken":"","userId":session.user_id,"userName":main_user[0]['userName'],"cardLastDigits":main_user[0]['cardLastDigits'],"sum":coupon,"assigned":True,"remarks":None,"expirationDate":None,"isDisabled":False,"editMode":False}]}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
-    if(DEBUG):
-        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
-        print("Response: " + str(response.status_code) + "\r\n")
-        print(resp_json)
-        print("wait log SetPaymentsInOrder")
     error_msg = resp_json['Errors']
     success_code = resp_json['Success']
     if(not success_code):
         print_hebrew((error_msg[0]['ErrorDesc']))
         return
+    if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
+        print(resp_json)
+        print("wait log SetPaymentsInOrder")
+
 
     if DRYRUN:
         return
@@ -227,16 +228,16 @@ def buy_coupon(session, coupon):
     payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","isMobileDevice":True,"dontWantCutlery":False,"orderRemarks":None}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
-    if(DEBUG):
-        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
-        print("Response: " + str(response.status_code) + "\r\n")
-        print(resp_json)
-        print("wait log SubmitOrder")
     error_msg = resp_json['Errors']
     success_code = resp_json['Success']
     if(not success_code):
         print_hebrew((error_msg[0]['ErrorDesc']))
         return
+    if(DEBUG):
+        print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
+        print("Response: " + str(response.status_code) + "\r\n")
+        print(resp_json)
+        print("wait log SubmitOrder")
     session.cart_guid = resp_json['ShoppingCartGuid']
 
 def auth_tenbis():
