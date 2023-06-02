@@ -77,11 +77,11 @@ def main_procedure():
         print(f"Result: {num_of_coupons} coupons to buy: {coupons_mixture}")
         if input("Press ENTER to continue or type 'no' to cancel: ") == "":
             for i in range(0, len(coupons_mixture),1):
-                print(f"Buying coupon #{i+1}: {coupons_mixture[i]}")
-                buy_coupon(session,coupons_mixture[i])
-                if ((i+1) < len(coupons_mixture) and (i > 0 and int(coupons_mixture[i]) == int(coupons_mixture[i-1]))):
+                if (i > 0 and int(coupons_mixture[i]) == int(coupons_mixture[i-1])):
                     print("waiting the required time before two identical orders...\r\n")
                     sleep_print(130)
+                print(f"Buying coupon #{i+1}: {coupons_mixture[i]}")
+                buy_coupon(session,coupons_mixture[i])
             print("Mission complete :)")
         else:
             print("canceled.")
@@ -95,7 +95,7 @@ def get_available_budget(session):
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     if(DEBUG):
         print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
-        input("wait log UserTransactionsReport")
+        print("wait log UserTransactionsReport")
     resp_json = json.loads(response.text)
     budget = resp_json['Data']['moneycards'][0]['balance']['monthly']
     return budget
@@ -107,11 +107,16 @@ def buy_coupon(session, coupon):
     payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","addressId":9181057,"cityId":37,"cityName":"ראש העין","streetId":48741,"streetName":"ניסים אלוני","houseNumber":"2","apartmentNumber":"","entrance":"","floor":"","comments":"","longitude":34.9798421,"latitude":32.0849931,"nameOnDoor":"","phone01":"0522222222","phone02":"0522222222","isCompanyAddress":False,"addressCompanyId":0,"locationType":"residential","locationName":"","restaurantDeliversToAddress":False,"shiftId":0,"addressKey":"37-48741-2-9181057"}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
+    error_msg = resp_json['Errors']
+    success_code = resp_json['Success']
+    if(not success_code):
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return
     if(DEBUG):
         print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        input("wait log SetAddressInOrder")
+        print("wait log SetAddressInOrder")
 
     # SetDeliveryMethodInOrder
     #
@@ -121,11 +126,16 @@ def buy_coupon(session, coupon):
     payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","deliveryMethod":"delivery"}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
+    error_msg = resp_json['Errors']
+    success_code = resp_json['Success']
+    if(not success_code):
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return
     if(DEBUG):
         print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        input("wait log SetDeliveryMethodInOrder")
+        print("wait log SetDeliveryMethodInOrder")
 
     # SetRestaurantInOrder
     #
@@ -135,11 +145,16 @@ def buy_coupon(session, coupon):
     payload = {"shoppingCartGuid":session.cart_guid,"culture":"he-IL","uiCulture":"he","isMobileDevice":True,"restaurantId":"26698"}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
+    error_msg = resp_json['Errors']
+    success_code = resp_json['Success']
+    if(not success_code):
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return
     if(DEBUG):
         print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        input("wait log SetRestaurantInOrder")
+        print("wait log SetRestaurantInOrder")
     
     # SetDishListInShoppingCart
     #
@@ -152,11 +167,16 @@ def buy_coupon(session, coupon):
                "dishList":[{"dishId":COUPONS_IDS[int(coupon)],"shoppingCartDishId":1,"quantity":1,"assignedUserId":session.user_id,"choices":[],"dishNotes":None,"categoryId":278344}]}
     response = session.post(endpoint, data=json.dumps(payload), headers=headers, verify=False)
     resp_json = json.loads(response.text)
+    error_msg = resp_json['Errors']
+    success_code = resp_json['Success']
+    if(not success_code):
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return
     if(DEBUG):
         print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        input("wait log SetDishListInShoppingCart")
+        print("wait log SetDishListInShoppingCart")
 
     # GetPayments
     #
@@ -170,7 +190,12 @@ def buy_coupon(session, coupon):
         print("Request:\r\n" + endpoint + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        input("wait log GetPayments")
+        print("wait log GetPayments")
+    error_msg = resp_json['Errors']
+    success_code = resp_json['Success']
+    if(not success_code):
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return
     main_user=current = [x for x in resp_json['Data'] if x['userId'] == session.user_id]
 
     # SetPaymentsInOrder
@@ -185,7 +210,12 @@ def buy_coupon(session, coupon):
         print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        input("wait log SetPaymentsInOrder")
+        print("wait log SetPaymentsInOrder")
+    error_msg = resp_json['Errors']
+    success_code = resp_json['Success']
+    if(not success_code):
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return
 
     if DRYRUN:
         return
@@ -201,7 +231,12 @@ def buy_coupon(session, coupon):
         print("Request:\r\n" + endpoint + "\r\n"  + json.dumps(payload) + "\r\n########")
         print("Response: " + str(response.status_code) + "\r\n")
         print(resp_json)
-        input("wait log SubmitOrder")
+        print("wait log SubmitOrder")
+    error_msg = resp_json['Errors']
+    success_code = resp_json['Success']
+    if(not success_code):
+        print_hebrew((error_msg[0]['ErrorDesc']))
+        return
     session.cart_guid = resp_json['ShoppingCartGuid']
 
 def auth_tenbis():
@@ -247,7 +282,7 @@ def auth_tenbis():
     if(DEBUG):
         print(endpoint + "\r\n" + str(response.status_code) + "\r\n"  + response.text)
         print(session)
-        input("wait log GetUserV2")
+        print("wait log GetUserV2")
 
     if (200 <= response.status_code <= 210 and (len(error_msg) == 0)):
         print("login successful...")
