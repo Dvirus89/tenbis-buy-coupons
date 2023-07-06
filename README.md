@@ -2,6 +2,7 @@
 
 ### This code will fetch your current balance in 10Bis and automatically purchase Shufersal coupons using the best optimized combination to utilize all the remaining credit.
 
+#### * You should also checkout this repo https://github.com/Dvirus89/tenbisbarcodes to get a report with all your unsused 10Bis coupons. 
 
 ## Usage:
 ```
