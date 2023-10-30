@@ -5,13 +5,14 @@ import time
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 TENBIS_FQDN = "https://www.10bis.co.il"
-COUPONS_TYPES = [100, 50, 40, 30, 15, 1] # "1" added as a dummy coin
+COUPONS_TYPES = [200, 100, 50, 40, 30, 15, 1] # "1" added as a dummy coin
 COUPONS_IDS = {
     15:6552646,
     30:2046839,
     40:2046840,
     50:2046841,
-    100:2046845
+    100:2046845,
+    200: 6552647
 }
 DEBUG = False
 DRYRUN = False
